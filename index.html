@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phone Number Lookup</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .response-box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-top: 10px;
+        height: 600px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        /* Ensure JSON is displayed correctly */
+      }
+
+      .basic-response {
+        background-color: #ffe5b4;
+        /* Light pastel orange */
+      }
+
+      .standard-response {
+        background-color: #e9f7ef;
+        /* Light pastel green */
+      }
+
+      .advanced-response {
+        background-color: #fce4ec;
+        /* Light pastel pink */
+      }
+
+      .center-button {
+        display: flex;
+        justify-content: center;
+      }
+
+      .center-title {
+        text-align: center;
+      }
+
+      .center-form {
+        display: flex;
+        justify-content: center;
+      }
+
+      .form-control {
+        width: 90%;
+        height: 150%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1 class="mt-5 center-title">Phone Number Lookup</h1>
+      <form id="lookupForm" class="mt-3 center-form">
+        <div class="form-group">
+          <input
+            type="text"
+            class="form-control"
+            id="phoneNumber"
+            placeholder="Enter phone number"
+            required
+          />
+        </div>
+        <div class="center-button">
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="performLookup()"
+          >
+            Lookup
+          </button>
+        </div>
+      </form>
+      <div class="row mt-5">
+        <div class="col-md-4">
+          <h3 class="center-title">Basic Lookup</h3>
+          <div id="basicResponse" class="response-box basic-response"></div>
+        </div>
+        <div class="col-md-4">
+          <h3 class="center-title">Standard Lookup</h3>
+          <div
+            id="standardResponse"
+            class="response-box standard-response"
+          ></div>
+        </div>
+        <div class="col-md-4">
+          <h3 class="center-title">Advanced Lookup</h3>
+          <div
+            id="advancedResponse"
+            class="response-box advanced-response"
+          ></div>
+        </div>
+      </div>
+    </div>
+    <script>
+      function isValidPhoneNumber(phoneNumber) {
+        // Regular expression for validating E.164 phone numbers
+        const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+        return phoneRegex.test(phoneNumber);
+      }
+
+      async function performLookup() {
+        const phoneNumber = document.getElementById("phoneNumber").value;
+
+        if (!phoneNumber) {
+          alert("Please enter a phone number");
+          return;
+        }
+
+        if (!isValidPhoneNumber(phoneNumber)) {
+          alert(
+            "Please enter a valid phone number in national or international format"
+          );
+          return;
+        }
+
+        try {
+          const basicResponse = await fetch(
+            `/basiclookup?phonenumber=${phoneNumber}`
+          );
+          const basicData = await basicResponse.json();
+          document.getElementById("basicResponse").innerText = JSON.stringify(
+            basicData,
+            null,
+            2
+          );
+
+          const standardResponse = await fetch(
+            `/standardlookup?phonenumber=${phoneNumber}`
+          );
+          const standardData = await standardResponse.json();
+          document.getElementById("standardResponse").innerText =
+            JSON.stringify(standardData, null, 2);
+
+          const advancedResponse = await fetch(
+            `/advancedlookup?phonenumber=${phoneNumber}`
+          );
+          const advancedData = await advancedResponse.json();
+          document.getElementById("advancedResponse").innerText =
+            JSON.stringify(advancedData, null, 2);
+        } catch (error) {
+          console.error("Error performing lookup:", error);
+          alert(
+            "Error performing lookup. Please check the console for details."
+          );
+        }
+      }
+    </script>
+  </body>
+</html>
