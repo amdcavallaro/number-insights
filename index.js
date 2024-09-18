@@ -10,8 +10,8 @@ const { NumberInsights } = require("@vonage/number-insights");
 require("dotenv").config(); // Load environment variables from .env file
 
 const credentials = new Auth({
-  apiKey: process.env.API_KEY,
-  apiSecret: process.env.API_SECRET,
+  apiKey: process.env.VONAGE_API_KEY,
+  apiSecret: process.env.VONAGE_API_SECRET,
 });
 const options = {};
 const niClient = new NumberInsights(credentials, options);
