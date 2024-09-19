@@ -16,60 +16,41 @@ const credentials = new Auth({
 const options = {};
 const niClient = new NumberInsights(credentials, options);
 
-// Middleware to parse JSON requests
-app.use(express.json());
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, "public")));
 
-// Basic Lookup endpoint
-app.get("/basiclookup", async (req, res) => {
+// Unified Lookup endpoint
+app.get("/lookup", async (req, res) => {
   const phoneNumber = req.query.phonenumber;
+  const lookupType = req.query.type;
 
   if (!phoneNumber) {
     return res.status(400).send("Phone number is required");
   }
 
+  if (!lookupType) {
+    return res.status(400).send("Lookup type is required");
+  }
+
   try {
-    const response = await niClient.basicLookup(phoneNumber);
+    let response;
+    switch (lookupType.toLowerCase()) {
+      case "basic":
+        response = await niClient.basicLookup(phoneNumber);
+        break;
+      case "standard":
+        response = await niClient.standardLookup(phoneNumber);
+        break;
+      case "advanced":
+        response = await niClient.advancedLookup(phoneNumber);
+        break;
+      default:
+        return res.status(400).send("Invalid lookup type");
+    }
     res.send(response);
   } catch (err) {
     res.status(500).send(err);
   }
-});
-
-// Standard Lookup endpoint
-app.get("/standardlookup", async (req, res) => {
-  const phoneNumber = req.query.phonenumber;
-
-  if (!phoneNumber) {
-    return res.status(400).send("Phone number is required");
-  }
-
-  try {
-    const response = await niClient.standardLookup(phoneNumber);
-    res.send(response);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-// Advanced Lookup endpoint
-app.get("/advancedlookup", async (req, res) => {
-  const phoneNumber = req.query.phonenumber;
-
-  if (!phoneNumber) {
-    return res.status(400).send("Phone number is required");
-  }
-
-  try {
-    const response = await niClient.advancedLookup(phoneNumber);
-    res.send(response);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-// Serve the UI HTML file
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get("/basiclookup", async (req, res) => {
